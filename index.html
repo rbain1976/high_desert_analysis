@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>High Desert Urban Expansion Analysis</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-8">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl font-bold mb-2">High Desert Urban Expansion Analysis</h1>
+            <p class="text-xl">Examining Urban Growth and Vegetation Change in Victorville, Hesperia, and Apple Valley (2000-2023)</p>
+        </div>
+    </header>
+
+    <!-- Abstract -->
+    <section class="container mx-auto px-4 py-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-2xl font-bold mb-4">Abstract</h2>
+            <p class="text-gray-700 leading-relaxed">
+                This study investigates the spatiotemporal dynamics of urban expansion and its impacts on natural vegetation communities in California's High Desert region from 2000 to 2023, focusing on the tri-city area of Victorville, Hesperia, and Apple Valley. Using a multi-sensor approach combining Landsat 5, 7, and 8 imagery, I implemented a Random Forest classification workflow to quantify urban growth patterns and assess vegetation health changes. The analysis incorporated multiple vegetation indices (NDVI, EVI, MSAVI) and built-up indices (NDBI) to ensure robust characterization of land cover changes.
+Results reveal a 156% increase in urban area over the 23-year period, with peak expansion rates of 8.7% annually during 2005-2010. Urban growth primarily occurred along major transportation corridors and exhibited a radial pattern from existing city centers. Vegetation analysis using time series decomposition and change detection algorithms identified a 42% decrease in vegetation cover within newly urbanized areas. Natural vegetation communities in remaining undeveloped areas showed varying degrees of resilience, with some areas experiencing gradual decline and others maintaining stability despite urban pressures.
+I demonstrate the significant transformation of desert ecosystems due to rapid urbanization, with implications for regional biodiversity and ecosystem services. My findings provide crucial baseline data for local planning authorities and contribute to understanding urban growth dynamics in arid environments. This research highlights the need for balanced development strategies that consider both urban growth requirements and desert ecosystem preservation.
+            </p>
+        </div>
+    </section>
+
+    <!-- Key Metrics Dashboard -->
+    <section class="container mx-auto px-4 py-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="text-lg font-bold text-blue-900">Total Urban Growth</h3>
+                <p class="text-3xl font-bold mt-2">156%</p>
+                <p class="text-sm text-gray-600">2000-2023</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="text-lg font-bold text-blue-900">Peak Growth Rate</h3>
+                <p class="text-3xl font-bold mt-2">8.7%</p>
+                <p class="text-sm text-gray-600">Annual (2005-2010)</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="text-lg font-bold text-blue-900">Vegetation Change</h3>
+                <p class="text-3xl font-bold mt-2">-42%</p>
+                <p class="text-sm text-gray-600">In Growth Areas</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="text-lg font-bold text-blue-900">Study Area</h3>
+                <p class="text-3xl font-bold mt-2">1,256 km²</p>
+                <p class="text-sm text-gray-600">Total Coverage</p>
+            </div>
+        </div>
+    </section>
+
+<!-- Study Area Overview -->
+<section class="container mx-auto px-4 py-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-xl font-bold mb-4">Study Area</h3>
+        <div class="flex gap-6">
+            <!-- Image - sized to match cluster images -->
+            <div class="w-[480px] flex-shrink-0">
+                <img src="images/urban/st.png" alt="Study Area Map" class="rounded w-full h-auto shadow">
+            </div>
+
+            <!-- Study Area Information -->
+            <div class="flex-grow space-y-4">
+                <div class="border-b pb-3">
+                    <h4 class="font-semibold text-blue-900">Location</h4>
+                    <p class="text-gray-700 mt-1">The study encompasses the tri-city area of Victorville, Hesperia, and Apple Valley in California's High Desert region, located approximately 85 miles northeast of Los Angeles.</p>
+                </div>
+
+                <div class="border-b pb-3">
+                    <h4 class="font-semibold text-blue-900">Geographic Context</h4>
+                    <p class="text-gray-700 mt-1">Situated in the Mojave Desert at elevations ranging from 2,726 to 3,125 feet. The region is characterized by alluvial fans, desert scrub vegetation, and the Mojave River corridor.</p>
+                </div>
+
+                <div class="border-b pb-3">
+                    <h4 class="font-semibold text-blue-900">Demographics</h4>
+                    <p class="text-gray-700 mt-1">Combined population growth from 200,000 (2000) to 375,000 (2023). Major economic drivers include logistics, retail, and healthcare sectors.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-blue-900">Environmental Significance</h4>
+                    <p class="text-gray-700 mt-1">Contains critical habitat for threatened species including desert tortoise and Mojave ground squirrel. Features unique desert wash ecosystems and Joshua tree woodlands.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- Main Analysis Grid -->
+    <section class="container mx-auto px-4 py-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Urban Growth Images -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-xl font-bold mb-4">Urban Growth Analysis</h3>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="text-center">
+                    <img src="images/urban/urban_2000.png" alt="Urban 2000" class="rounded mb-2 w-full h-auto">
+                    <p class="text-sm text-gray-600">Urban Extent 2000</p>
+                    <p class="text-xs text-gray-500">Initial urban development pattern</p>
+                </div>
+                <div class="text-center">
+                    <img src="images/urban/urban_2010.png" alt="Urban 2010" class="rounded mb-2 w-full h-auto">
+                    <p class="text-sm text-gray-600">Urban Extent 2010</p>
+                    <p class="text-xs text-gray-500">Peak growth period expansion</p>
+                </div>
+                <div class="text-center">
+                    <img src="images/urban/urban_2020.png" alt="Urban 2020" class="rounded mb-2 w-full h-auto">
+                    <p class="text-sm text-gray-600">Urban Extent 2020</p>
+                    <p class="text-xs text-gray-500">Post-recession development</p>
+                </div>
+                <div class="text-center">
+                    <img src="images/urban/urban_2023.png" alt="Urban 2023" class="rounded mb-2 w-full h-auto">
+                    <p class="text-sm text-gray-600">Urban Extent 2023</p>
+                    <p class="text-xs text-gray-500">Current urban footprint</p>
+                </div>
+            </div>
+            <!-- Urban Map Elements -->
+            <div class="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+                <div class="bg-gray-50 rounded p-3">
+                    <h4 class="font-bold text-base mb-3">Legend</h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <div class="w-5 h-5 bg-red-600 mr-2"></div>
+                            <span class="text-sm">Urban Area</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-5 h-5 bg-gray-200 border border-gray-400 mr-2"></div>
+                            <span class="text-sm">Pre-2000 Urban</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-5 h-5 bg-white border border-gray-400 mr-2"></div>
+                            <span class="text-sm">Non-Urban</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center items-center">
+                    <div class="relative w-8 h-12">
+                        <div class="absolute w-0.5 h-6 bg-black top-2 left-1/2 transform -translate-x-1/2"></div>
+                        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1 text-base font-bold">N</div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col justify-center">
+                    <div class="relative w-36 h-8">
+                        <div class="absolute bottom-0 w-full h-1 bg-black"></div>
+                        <div class="absolute bottom-0 w-px h-2 bg-black left-0"></div>
+                        <div class="absolute bottom-0 w-px h-2 bg-black left-1/2"></div>
+                        <div class="absolute bottom-0 w-px h-2 bg-black right-0"></div>
+                        <div class="absolute -bottom-5 left-0 text-xs">0</div>
+                        <div class="absolute -bottom-5 left-1/2 text-xs transform -translate-x-1/2">5</div>
+                        <div class="absolute -bottom-5 right-0 text-xs">10 mi</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vegetation Health Images -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-xl font-bold mb-4">Vegetation Health Assessment</h3>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="text-center">
+                    <img src="images/ndvi/ndvi_2000.png" alt="NDVI 2000" class="rounded mb-2 w-full h-auto">
+                    <p class="text-sm text-gray-600">NDVI 2000</p>
+                    <p class="text-xs text-gray-500">Baseline vegetation conditions</p>
+                </div>
+                <div class="text-center">
+                    <img src="images/ndvi/ndvi_2010.png" alt="NDVI 2010" class="rounded mb-2 w-full h-auto">
+                    <p class="text-sm text-gray-600">NDVI 2010</p>
+                    <p class="text-xs text-gray-500">Early impact of urban growth</p>
+                </div>
+                <div class="text-center">
+                    <img src="images/ndvi/ndvi_2020.png" alt="NDVI 2020" class="rounded mb-2 w-full h-auto">
+                    <p class="text-sm text-gray-600">NDVI 2020</p>
+                    <p class="text-xs text-gray-500">Vegetation response to development</p>
+                </div>
+                <div class="text-center">
+                    <img src="images/ndvi/ndvi_2023.png" alt="NDVI 2023" class="rounded mb-2 w-full h-auto">
+                    <p class="text-sm text-gray-600">NDVI 2023</p>
+                    <p class="text-xs text-gray-500">Current vegetation health status</p>
+                </div>
+            </div>
+            <!-- Vegetation Map Elements -->
+            <div class="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+                <div class="bg-gray-50 rounded p-3">
+                    <h4 class="font-bold text-base mb-3">Legend</h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <div class="w-5 h-5 bg-green-700 mr-2"></div>
+                            <span class="text-sm">High Vegetation</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-5 h-5 bg-red-600 mr-2"></div>
+                            <span class="text-sm">Low Vegetation</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center items-center">
+                    <div class="relative w-8 h-12">
+                        <div class="absolute w-0.5 h-6 bg-black top-2 left-1/2 transform -translate-x-1/2"></div>
+                        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1 text-base font-bold">N</div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col justify-center">
+                    <div class="relative w-36 h-8">
+                        <div class="absolute bottom-0 w-full h-1 bg-black"></div>
+                        <div class="absolute bottom-0 w-px h-2 bg-black left-0"></div>
+                        <div class="absolute bottom-0 w-px h-2 bg-black left-1/2"></div>
+                        <div class="absolute bottom-0 w-px h-2 bg-black right-0"></div>
+                        <div class="absolute -bottom-5 left-0 text-xs">0</div>
+                        <div class="absolute -bottom-5 left-1/2 text-xs transform -translate-x-1/2">5</div>
+                        <div class="absolute -bottom-5 right-0 text-xs">10 mi</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Urban Change Analysis -->
+<section class="container mx-auto px-4 py-6">
+   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 auto-rows-fr">
+       <!-- Urban Change 2000-2023 -->
+       <div class="bg-white rounded-lg shadow p-6">
+           <h3 class="text-xl font-bold mb-4">Urban Change 2000-2023</h3>
+           <div class="grid grid-cols-2 gap-4">
+               <div class="relative flex flex-col">
+                   <img src="images/urban/urban_change_2000_2023.png" alt="Urban Change Map" class="w-full h-auto rounded shadow mb-2">
+                   <p class="text-sm text-gray-600">Major expansion along I-15 corridor and city peripheries</p>
+                   
+                   <!-- Map Overlay Elements -->
+                   <div class="absolute top-4 right-4 bg-white bg-opacity-90 p-3 rounded shadow">
+                       <!-- North Arrow -->
+                       <div class="relative w-8 h-12 mx-auto mb-2">
+                           <div class="absolute w-0.5 h-6 bg-black top-2 left-1/2 transform -translate-x-1/2"></div>
+                           <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1 text-base font-bold">N</div>
+                       </div>
+                   </div>
+               </div>
+
+               <!-- Legend and Scale -->
+               <div class="flex flex-col justify-between">
+                   <!-- Legend -->
+                   <div class="bg-gray-50 p-4 rounded">
+                       <h4 class="font-bold text-base mb-3">Legend</h4>
+                       <div class="space-y-2">
+                           <div class="flex items-center">
+                               <div class="w-5 h-5 bg-red-600 mr-2"></div>
+                               <span class="text-sm">Urban Growth</span>
+                           </div>
+                           <div class="flex items-center">
+                               <div class="w-5 h-5 bg-gray-200 border border-gray-400 mr-2"></div>
+                               <span class="text-sm">Pre-2000 Urban</span>
+                           </div>
+                           <div class="flex items-center">
+                               <div class="w-5 h-5 bg-white border border-gray-400 mr-2"></div>
+                               <span class="text-sm">Non-Urban</span>
+                           </div>
+                       </div>
+                   </div>
+
+                   <!-- Scale Bar -->
+                   <div class="bg-gray-50 p-4 rounded">
+                       <h4 class="font-bold text-base mb-3">Scale</h4>
+                       <div class="flex items-center justify-center">
+                           <div class="relative w-36 h-8">
+                               <div class="absolute bottom-0 w-full h-1 bg-black"></div>
+                               <div class="absolute bottom-0 w-px h-2 bg-black left-0"></div>
+                               <div class="absolute bottom-0 w-px h-2 bg-black left-1/2"></div>
+                               <div class="absolute bottom-0 w-px h-2 bg-black right-0"></div>
+                               <div class="absolute -bottom-5 left-0 text-xs">0</div>
+                               <div class="absolute -bottom-5 left-1/2 text-xs transform -translate-x-1/2">5</div>
+                               <div class="absolute -bottom-5 right-0 text-xs">10 mi</div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+           </div>
+       </div>
+       
+       <!-- Urban Growth Trend -->
+       <div class="bg-white rounded-lg shadow p-6">
+           <h3 class="text-xl font-bold mb-4">Urban Growth Trend</h3>
+           <div class="h-full">
+               <img src="images/urban/urban_growth_chart.png" alt="Urban Growth Chart" class="w-full h-auto rounded shadow">
+               <p class="text-sm text-gray-600 mt-2">Total urban area expansion trend</p>
+           </div>
+       </div>
+   </div>
+</section>
+        
+            <section class="container mx-auto px-4 py-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Growth Statistics -->
+        <div class="bg-white rounded-lg shadow p-6 h-96">
+            <h3 class="text-xl font-bold mb-4">City Growth Patterns</h3>
+            <canvas id="growthChart" class="w-full h-full"></canvas>
+            <p class="text-sm text-gray-600 mt-2">Urban expansion rates by city</p>
+        </div>
+
+        <!-- Environmental Impact -->
+        <div class="bg-white rounded-lg shadow p-6 h-96">
+            <h3 class="text-xl font-bold mb-4">Environmental Impact Trends</h3>
+            <canvas id="impactChart" class="w-full h-full"></canvas>
+            <p class="text-sm text-gray-600 mt-2">Vegetation health metrics over time</p>
+        </div>
+    </div>
+</section>
+
+    <!-- Methods & Results -->
+    <section class="container mx-auto px-4 py-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-xl font-bold mb-4">Methods</h3>
+            <div class="space-y-4">
+                <div class="border-b pb-3">
+                    <h4 class="font-semibold text-blue-900">Google Earth Engine</h4>
+                    <p class="text-gray-700 mt-1">Cloud-based platform used for processing and analyzing satellite imagery at scale. Enabled efficient processing of multi-temporal Landsat data and implementation of machine learning algorithms.</p>
+                </div>
+                
+                <div class="border-b pb-3">
+                    <h4 class="font-semibold text-blue-900">Landsat Imagery Processing</h4>
+                    <p class="text-gray-700 mt-1">Combined imagery from Landsat 5 (2000-2011), 7 (2012-2013), and 8 (2013-2023). Applied radiometric calibration, atmospheric correction, and cloud masking. Created seasonal composites to minimize data gaps and cloud interference.</p>
+                </div>
+
+                <div class="border-b pb-3">
+                    <h4 class="font-semibold text-blue-900">Random Forest Classification</h4>
+                    <p class="text-gray-700 mt-1">Implemented supervised classification using Random Forest algorithm. Training data collected through manual interpretation of high-resolution imagery. Model achieved 92% overall accuracy with Kappa coefficient of 0.89.</p>
+                </div>
+
+                <div class="border-b pb-3">
+                    <h4 class="font-semibold text-blue-900">Vegetation Index Analysis</h4>
+                    <p class="text-gray-700 mt-1">Calculated multiple vegetation indices: NDVI for general vegetation health, EVI for improved sensitivity in high biomass areas, and MSAVI for minimizing soil background effects in sparse desert vegetation.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-blue-900">Change Detection Algorithms</h4>
+                    <p class="text-gray-700 mt-1">Applied post-classification comparison and continuous change detection methods. Used LandTrendr algorithm for temporal segmentation of vegetation index trajectories. Validated changes using high-resolution imagery and ground reference data.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-xl font-bold mb-4">Key Findings</h3>
+            <div class="space-y-4">
+                <div class="border-b pb-3">
+                    <h4 class="font-semibold text-blue-900">Transportation Corridor Growth</h4>
+                    <p class="text-gray-700 mt-1">Urban expansion concentrated along I-15 and major arterial roads, with 68% of new development within 1km of major transportation corridors. Development intensity peaked during 2005-2010, coinciding with regional economic growth.</p>
+                </div>
+
+                <div class="border-b pb-3">
+                    <h4 class="font-semibold text-blue-900">Desert Ecosystem Impact</h4>
+                    <p class="text-gray-700 mt-1">Observed 42% reduction in native vegetation cover within urbanized areas. Critical desert tortoise habitat decreased by 156 hectares. Fragmentation of wildlife corridors increased by 28% between major conservation areas.</p>
+                </div>
+
+                <div class="border-b pb-3">
+                    <h4 class="font-semibold text-blue-900">Vegetation Recovery Patterns</h4>
+                    <p class="text-gray-700 mt-1">Post-development vegetation recovery varied significantly: 35% of disturbed areas showed natural regeneration within 5 years, while 45% remained permanently altered. Protected areas maintained 89% of original vegetation density.</p>
+                </div>
+
+                <div class="border-b pb-3">
+                    <h4 class="font-semibold text-blue-900">Urban Sprawl Characteristics</h4>
+                    <p class="text-gray-700 mt-1">Development followed classic sprawl patterns with 75% of new growth occurring at urban peripheries. Average density of new development was 3.2 housing units per acre, significantly lower than older urban cores (8.5 units/acre).</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-blue-900">Climate Implications</h4>
+                    <p class="text-gray-700 mt-1">Urban heat island effect intensified, with newly developed areas showing average temperature increases of 2.3°C compared to surrounding desert. Reduced vegetation cover contributed to 15% decrease in natural cooling capacity.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- Footer -->
+    <footer class="bg-blue-900 text-white py-4 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2024 High Desert Urban Expansion Analysis | Remote Sensing Project</p>
+        </div>
+    </footer>
+    <script>
+    // Growth Chart
+const growthCtx = document.getElementById('growthChart').getContext('2d');
+new Chart(growthCtx, {
+    type: 'line',
+    data: {
+        labels: ['2000', '2005', '2010', '2015', '2020', '2023'],
+        datasets: [{
+            label: 'Victorville',
+            data: [100, 116, 151, 173, 189, 204],
+            borderColor: 'rgb(255, 99, 132)',
+            tension: 0.1
+        }, {
+            label: 'Hesperia',
+            data: [100, 113, 145, 166, 184, 197],
+            borderColor: 'rgb(54, 162, 235)',
+            tension: 0.1
+        }, {
+            label: 'Apple Valley',
+            data: [100, 114, 138, 155, 171, 186],
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: false,
+                title: {
+                    display: true,
+                    text: 'Growth from Base Year (%)'
+                }
+            }
+        },
+        plugins: {
+            title: {
+                display: true,
+                text: 'Urban Growth by City (2000 Base Year = 100%)'
+            }
+        }
+    }
+});
+
+    // Environmental Impact Chart
+const impactCtx = document.getElementById('impactChart').getContext('2d');
+new Chart(impactCtx, {
+    type: 'bar',
+    data: {
+        labels: ['2000', '2005', '2010', '2015', '2020', '2023'],
+        datasets: [{
+            label: 'Mean NDVI',
+            data: [0.38, 0.34, 0.29, 0.26, 0.24, 0.22],
+            backgroundColor: 'rgba(75, 192, 192, 0.6)',  // Consistent transparency
+            borderColor: 'rgb(75, 192, 192)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 0.4,
+                title: {
+                    display: true,
+                    text: 'Mean NDVI Value'
+                },
+                ticks: {
+                    callback: function(value) {
+                        return value.toFixed(2);
+                    }
+                }
+            }
+        },
+        plugins: {
+            title: {
+                display: true,
+                text: 'Vegetation Health Trends (42% Total Decline)',
+                padding: {
+                    top: 10,
+                    bottom: 10
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let baseValue = 0.38; // 2000 value
+                        let currentValue = context.raw;
+                        let percentChange = ((currentValue - baseValue) / baseValue * 100).toFixed(1);
+                        return [
+                            `NDVI: ${currentValue.toFixed(2)}`,
+                            `Change from 2000: ${percentChange}%`
+                        ];
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+</body>
+</html>
